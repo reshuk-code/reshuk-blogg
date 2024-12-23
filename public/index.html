@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Site</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div id="container">
+        <header style="display: flex;
+        flex-direction: row;
+        gap: 1rem;
+        float: right;
+        ">
+            <a href="/blog" style="   background-color: #000;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+           ">Blogs</a>
+                <a href="/create" style="   background-color: #000;
+                color: #fff;
+                padding: 10px 15px;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                text-decoration: none;
+               ">Create Blog</a>
+        </header>
+        <h1 style="display: none;">Post a Blog</h1>
+        <form id="postForm" enctype="multipart/form-data" style="display: none;">
+            <input type="text" id="author" placeholder="Your Name">
+            <input type="text" id="title" placeholder="Enter title" required>
+            <textarea id="content" placeholder="Enter content" required></textarea>
+            <input type="file"  id="coverImage" required>
+            <button type="submit">Submit Post</button>
+        </form>
+
+        <h2>Blog Feed</h2>
+        <div id="posts"></div>
+    </div>
+
+    <script src="./index.js">
+       
+    </script>
+</body>
+
+</html>

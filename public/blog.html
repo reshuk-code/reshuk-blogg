@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs</title>
+    <link rel="stylesheet" href="./index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .blog {
+            border: 1px solid #000;
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .blog img {
+            max-width: 100%;
+            width: 1000px;
+        }
+        .blog h2 {
+            color: #333;
+        }
+        .blog p {
+            color: #555;
+        }
+        .blog .meta {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .replies {
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px solid #ddd;
+        }
+        .replies p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        #search {
+            margin-bottom: 20px;
+            padding: 8px;
+            width: 100%;
+            font-size: 1rem;
+            border: 1px solid #000;
+            font-family: monospace;
+        
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blogs</h1>
+        <input type="text" id="search" placeholder="Search blogs by title..." oninput="filterBlogs()">
+        <div id="post"></div>
+    </div>
+
+    <script>
+        let allBlogs = []; // To store all blogs globally
+
+        // Fetch blogs from the API
+        async function fetchBlogs() {
+            try {
+                const response = await fetch('http://localhost:3000/api/posts');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const blogs = await response.json();
+
+                // Sort blogs from newest to oldest
+                allBlogs = blogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                renderBlogs(allBlogs);
+            } catch (error) {
+                console.error('Error fetching blogs:', error);
+            }
+        }
+
+        // Render blogs to the DOM
+        function renderBlogs(blogs) {
+            const blogsContainer = document.getElementById('post');
+            blogsContainer.innerHTML = blogs.map(blog => `
+                <div class="blog">
+                    <p>by-${blog.author || 'Unknown'}</p>
+                    <img src="${blog.coverImage}" alt="${blog.title}">
+                    <h2>${blog.title}</h2>
+                    <p>${blog.content}</p>
+                    <p class="meta">👍 Like : ${blog.likes} | 👎 Dislike ${blog.dislikes} | Created At: ${new Date(blog.createdAt).toLocaleDateString()}</p>
+                    ${blog.replies.length > 0 ? `<div class="replies">Replies: ${blog.replies.map(reply => `<p>${reply.reply}</p>`).join('')}</div>` : 'no reply'}
+                   <div class="reply-section">
+                    <textarea id="reply-input-${blog._id}" placeholder="Write a reply..."></textarea>
+                    <button onclick="replyToPost('${blog._id}')">Reply</button>
+                </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter blogs by title
+        function filterBlogs() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const filteredBlogs = allBlogs.filter(blog => blog.title.toLowerCase().includes(searchValue));
+            renderBlogs(filteredBlogs);
+        }
+// Function to reply to a post
+async function replyToPost(postId) {
+    const replyText = document.getElementById(`reply-input-${postId}`).value;
+    if (replyText.trim()) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/reply/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reply: replyText })
+            });
+            const data = await response.json();
+            alert('Replied successfully');
+            fetchPosts();
+        } catch (err) {
+            console.error('Error replying to post:', err);
+        }
+    } else {
+        alert('Reply cannot be empty');
+    }
+}
+
+        // Load blogs on page load
+        fetchBlogs();
+    </script>
+</body>
+</html>
